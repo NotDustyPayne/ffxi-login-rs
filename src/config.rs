@@ -1,12 +1,41 @@
 use serde::Deserialize;
 use std::path::{Path, PathBuf};
 
+const DEFAULT_WINDOWER_PATH: &str = r"C:\Windower4\Windower.exe";
+const DEFAULT_PLAYONLINE_DIR: &str =
+    r"C:\Program Files (x86)\PlayOnline\SquareEnix\PlayOnlineViewer\usr\all";
+
+fn default_windower_path() -> PathBuf {
+    PathBuf::from(DEFAULT_WINDOWER_PATH)
+}
+
+fn default_playonline_dir() -> PathBuf {
+    PathBuf::from(DEFAULT_PLAYONLINE_DIR)
+}
+
+fn default_stagger_delay() -> u64 {
+    10
+}
+
+fn default_launch_delay() -> u64 {
+    2
+}
+
+fn default_region() -> Region {
+    Region::Us
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    #[serde(default = "default_windower_path")]
     pub windower_path: PathBuf,
+    #[serde(default = "default_playonline_dir")]
     pub playonline_dir: PathBuf,
+    #[serde(default = "default_stagger_delay")]
     pub stagger_delay_seconds: u64,
+    #[serde(default = "default_launch_delay")]
     pub launch_delay_seconds: u64,
+    #[serde(default = "default_region")]
     pub region: Region,
     pub characters: Vec<Character>,
 }

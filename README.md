@@ -10,9 +10,31 @@ Automated multi-character FFXI login tool. Launches multiple Windower instances 
 
 ## Setup
 
-1. Copy `config.example.json` to `config.json`
-2. Edit `config.json` with your Windower path and character details
-3. Each character's `slot` number corresponds to their position in PlayOnline's account list
+1. Copy `login-rs.exe` and `config.example.json` into your Windower directory (e.g., `C:\Windower4\`)
+2. Rename `config.example.json` to `config.json`
+3. Edit `config.json` with your character names and slot numbers
+4. Each character's `slot` number corresponds to their position in PlayOnline's account list
+
+A minimal config only needs your characters:
+
+```json
+{
+  "characters": [
+    { "name": "CharOne", "slot": 1 },
+    { "name": "CharTwo", "slot": 2 }
+  ]
+}
+```
+
+All other settings have sensible defaults:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `windower_path` | `C:\Windower4\Windower.exe` | Path to Windower executable |
+| `playonline_dir` | `C:\Program Files (x86)\PlayOnline\SquareEnix\PlayOnlineViewer\usr\all` | PlayOnline data directory (contains `login_w.bin`) |
+| `stagger_delay_seconds` | `10` | Delay between each character's login in Phase 2 |
+| `launch_delay_seconds` | `2` | Delay between launching Windower instances in Phase 1 |
+| `region` | `us` | POL region (`us`, `jp`, or `eu`) |
 
 ## Usage
 
@@ -24,7 +46,7 @@ login-rs.exe
 login-rs.exe --characters CharOne CharTwo
 
 # Custom config file path
-login-rs.exe --config my-config.json
+login-rs.exe --config C:\path\to\config.json
 
 # Enable debug logging
 set RUST_LOG=debug

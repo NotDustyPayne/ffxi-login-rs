@@ -1,9 +1,4 @@
 {
-  "windower_path": "C:\\Windower4\\Windower.exe",
-  "playonline_dir": "C:\\Program Files (x86)\\PlayOnline\\SquareEnix\\PlayOnlineViewer\\usr\\all",
-  "stagger_delay_seconds": 10,
-  "launch_delay_seconds": 2,
-  "region": "us",
   "characters": [
     { "name": "CharOne", "slot": 1 },
     { "name": "CharTwo", "slot": 2 },
