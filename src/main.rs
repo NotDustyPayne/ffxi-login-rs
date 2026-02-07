@@ -56,5 +56,13 @@ fn main() {
     }
     println!("Logs: {}", file_logger.log_dir().display());
 
+    ctrlc::set_handler(move || {
+        eprintln!("\nInterrupted! Cleaning up...");
+        win32::block_input(false);
+        hosts::cleanup_stale();
+        std::process::exit(1);
+    })
+    .expect("Failed to set Ctrl+C handler");
+
     launcher::run(&config, &characters, &file_logger);
 }
