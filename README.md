@@ -4,9 +4,9 @@ Automated multi-character FFXI login tool. Launches multiple Windower instances 
 
 ## Quickstart
 
-1. Download `login-rs.exe` and `login-config.json` from the [latest release](https://github.com/NotDustyPayne/ffxi-login-rs/releases/latest)
-2. Place both files in your Windower directory (e.g., `C:\Windower4\`)
-3. Open `login-config.json` and replace the placeholder characters with your own:
+1. Download `login-rs-vX.X.X.zip` from the [latest release](https://github.com/NotDustyPayne/ffxi-login-rs/releases/latest)
+2. Extract the `login-rs` folder into your Windower directory (e.g., `C:\Windower4\login-rs\`)
+3. Open `config.json` and replace the placeholder characters with your own:
    ```json
    {
      "characters": [
@@ -48,7 +48,7 @@ login-rs.exe
 login-rs.exe --characters MyMain MyMule
 
 :: Use a config file in a different location
-login-rs.exe --config C:\path\to\login-config.json
+login-rs.exe --config C:\path\to\config.json
 
 :: Enable debug logging
 set RUST_LOG=debug
@@ -83,7 +83,6 @@ cargo build --release
 ```
 
 3. The executable will be at `target\release\login-rs.exe`
-4. Copy `login-rs.exe` and `login-config.json` to your Windower directory
 
 ## Development (cross-compile from macOS)
 
