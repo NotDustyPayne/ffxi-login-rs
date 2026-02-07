@@ -2,31 +2,33 @@
 
 Automated multi-character FFXI login tool. Launches multiple Windower instances and automates PlayOnline login using saved credentials, getting all your characters in-game with a single command.
 
+## Quickstart
+
+1. Download `login-rs.exe` and `login-config.json` from the [latest release](https://github.com/NotDustyPayne/ffxi-login-rs/releases/latest)
+2. Place both files in your Windower directory (e.g., `C:\Windower4\`)
+3. Open `login-config.json` and replace the placeholder characters with your own:
+   ```json
+   {
+     "characters": [
+       { "name": "MyMain", "slot": 1 },
+       { "name": "MyMule", "slot": 2 }
+     ]
+   }
+   ```
+   Each `slot` is the character's position in PlayOnline's account list (the order they appear when you open PlayOnline).
+4. Right-click `login-rs.exe` and **Run as Administrator**
+
+That's it — all your characters will launch and log in automatically.
+
 ## Prerequisites
 
 - Windows with Windower 4 installed
 - All PlayOnline accounts saved with credentials (Windower Dev 4.6.3.6+ supports up to 20 stored accounts)
 - Run as Administrator (required for input blocking and hosts file modification)
 
-## Setup
+## Configuration
 
-1. Download `login-rs.exe` and `login-config.json` from the [latest release](https://github.com/NotDustyPayne/ffxi-login-rs/releases/latest)
-2. Place both files in your Windower directory (e.g., `C:\Windower4\`)
-3. Edit `login-config.json` — replace the placeholder character names and slots with your own
-4. Each character's `slot` number corresponds to their position in PlayOnline's account list
-
-A minimal config only needs your characters:
-
-```json
-{
-  "characters": [
-    { "name": "CharOne", "slot": 1 },
-    { "name": "CharTwo", "slot": 2 }
-  ]
-}
-```
-
-All other settings have sensible defaults:
+The only required field is `characters`. Everything else has sensible defaults:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -38,17 +40,17 @@ All other settings have sensible defaults:
 
 ## Usage
 
-```bash
-# Log in all characters
+```cmd
+:: Log in all characters
 login-rs.exe
 
-# Log in specific characters by name
-login-rs.exe --characters CharOne CharTwo
+:: Log in specific characters by name
+login-rs.exe --characters MyMain MyMule
 
-# Custom config file path
+:: Use a config file in a different location
 login-rs.exe --config C:\path\to\login-config.json
 
-# Enable debug logging
+:: Enable debug logging
 set RUST_LOG=debug
 login-rs.exe
 ```
