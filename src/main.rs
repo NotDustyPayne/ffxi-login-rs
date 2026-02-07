@@ -1,5 +1,6 @@
 mod config;
 mod hosts;
+mod login_bin;
 mod logging;
 mod proxy;
 mod win32;
