@@ -1,5 +1,6 @@
 mod config;
 mod logging;
+mod proxy;
 mod win32;
 
 use clap::Parser;
