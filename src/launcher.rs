@@ -104,8 +104,13 @@ fn launch_single<'a>(
     existing_windows: &[WindowHandle],
     already_launched: &[LaunchedCharacter],
 ) -> Result<LaunchedCharacter<'a>, String> {
-    // Launch Windower
-    let _pid = win32::launch_process(&config.windower_path)?;
+    // Launch Windower with -p flag to skip the profile picker
+    let profile_arg = config.windower_profile.as_ref()
+        .map(|p| format!("-p=\"{}\"", p));
+    let _pid = win32::launch_process(
+        &config.windower_path,
+        profile_arg.as_deref(),
+    )?;
 
     // Poll for new PlayOnline window (up to 30 seconds)
     let mut new_hwnd = None;
@@ -165,25 +170,28 @@ fn login_with_retry(
     port: u16,
     logger: &FileLogger,
 ) -> Result<(), ()> {
-    for attempt in 0..2 {
-        if attempt > 0 {
-            log::info!("Retrying login for {}", lc.character.name);
-            thread::sleep(Duration::from_secs(2));
-        }
-
+    loop {
         match login_single(config, lc, port) {
             Ok(()) => return Ok(()),
             Err(e) => {
-                let step = if attempt == 0 { "login" } else { "login (retry)" };
-                logger.log_error(&lc.character.name, step, &e);
+                logger.log_error(&lc.character.name, "login", &e);
                 // Always cleanup on failure
                 win32::block_input(false);
                 let _ = hosts::remove_entries();
+
+                println!("  ✗ {} login failed: {}", lc.character.name, e);
+                println!("  Press Enter to retry, or type 'skip' to skip this character:");
+
+                let mut input = String::new();
+                if std::io::stdin().read_line(&mut input).is_err() {
+                    return Err(());
+                }
+                if input.trim().eq_ignore_ascii_case("skip") {
+                    return Err(());
+                }
             }
         }
     }
-
-    Err(())
 }
 
 fn login_single(
@@ -210,11 +218,12 @@ fn login_single(
     win32::focus_window(lc.hwnd);
     thread::sleep(Duration::from_millis(500));
 
-    // Handle auto-login: if enabled and wrong slot, cancel it
-    if login_info.auto_login_enabled {
-        win32::press_key(0x1B, 300); // VK_ESCAPE
-        thread::sleep(Duration::from_millis(1300));
-    }
+    // TODO: auto-login detection is unreliable (offset 0x6F doesn't
+    // accurately reflect the setting). Disabled for now.
+    // if login_info.auto_login_enabled {
+    //     win32::press_key(0x1B, 300); // VK_ESCAPE
+    //     thread::sleep(Duration::from_millis(1300));
+    // }
 
     // Navigate to correct slot
     let steps = login_bin::navigation_steps(login_info.current_slot, lc.character.slot);

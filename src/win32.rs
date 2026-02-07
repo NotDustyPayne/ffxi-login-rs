@@ -18,9 +18,27 @@ mod platform {
         CREATE_NEW_PROCESS_GROUP,
     };
 
-    /// Launch a process and return its process ID
-    pub fn launch_process(exe_path: &Path) -> Result<u32, String> {
+    /// Launch a process with optional command-line arguments and return its process ID
+    pub fn launch_process(exe_path: &Path, args: Option<&str>) -> Result<u32, String> {
         let exe_wide: Vec<u16> = OsStr::new(exe_path)
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect();
+
+        // Build command line: "exe_path" args
+        let cmd_line = match args {
+            Some(a) => format!("\"{}\" {}", exe_path.display(), a),
+            None => format!("\"{}\"", exe_path.display()),
+        };
+        let mut cmd_line_wide: Vec<u16> = OsStr::new(&cmd_line)
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect();
+
+        // Set working directory to the exe's parent so it can find its config files
+        let working_dir = exe_path.parent()
+            .ok_or_else(|| format!("Cannot determine parent directory of {:?}", exe_path))?;
+        let working_dir_wide: Vec<u16> = OsStr::new(working_dir)
             .encode_wide()
             .chain(std::iter::once(0))
             .collect();
@@ -33,13 +51,13 @@ mod platform {
         let success = unsafe {
             CreateProcessW(
                 exe_wide.as_ptr(),
-                std::ptr::null_mut(),
+                cmd_line_wide.as_mut_ptr(),
                 std::ptr::null(),
                 std::ptr::null(),
                 FALSE,
                 CREATE_NEW_PROCESS_GROUP,
                 std::ptr::null(),
-                std::ptr::null(),
+                working_dir_wide.as_ptr() as *const _,
                 &startup_info,
                 &mut proc_info,
             )
@@ -195,7 +213,7 @@ mod platform {
     // Stub type for HWND on non-Windows
     pub type HWND = isize;
 
-    pub fn launch_process(exe_path: &Path) -> Result<u32, String> {
+    pub fn launch_process(exe_path: &Path, _args: Option<&str>) -> Result<u32, String> {
         log::warn!("launch_process is a stub on non-Windows: {:?}", exe_path);
         Ok(0)
     }

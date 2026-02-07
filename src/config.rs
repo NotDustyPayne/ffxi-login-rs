@@ -31,6 +31,7 @@ pub struct Config {
     pub windower_path: PathBuf,
     #[serde(default = "default_playonline_dir")]
     pub playonline_dir: PathBuf,
+    pub windower_profile: Option<String>,
     #[serde(default = "default_stagger_delay")]
     pub stagger_delay_seconds: u64,
     #[serde(default = "default_launch_delay")]
