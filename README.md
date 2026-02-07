@@ -10,9 +10,8 @@ Automated multi-character FFXI login tool. Launches multiple Windower instances 
 
 ## Setup
 
-1. Copy `login-rs.exe` and `config.example.json` into your Windower directory (e.g., `C:\Windower4\`)
-2. Rename `config.example.json` to `config.json`
-3. Edit `config.json` with your character names and slot numbers
+1. Copy `login-rs.exe` and `config.json` into your Windower directory (e.g., `C:\Windower4\`)
+2. Edit `config.json` — replace the placeholder character names and slots with your own
 4. Each character's `slot` number corresponds to their position in PlayOnline's account list
 
 A minimal config only needs your characters:
@@ -69,9 +68,21 @@ login-rs.exe
 - On failure, the tool skips the character and continues with the rest
 - Ctrl+C safely cleans up (unblocks input, removes hosts file entries)
 
-## Building
+## Building on Windows
 
-Requires Rust toolchain. Cross-compile from macOS:
+1. Install the [Rust toolchain](https://rustup.rs/)
+2. Clone the repo and build:
+
+```cmd
+git clone https://github.com/NotDustyPayne/ffxi-login-rs.git
+cd ffxi-login-rs
+cargo build --release
+```
+
+3. The executable will be at `target\release\login-rs.exe`
+4. Copy `login-rs.exe` and `config.json` to your Windower directory
+
+## Development (cross-compile from macOS)
 
 ```bash
 rustup target add x86_64-pc-windows-gnu
