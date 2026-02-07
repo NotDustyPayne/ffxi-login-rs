@@ -1,4 +1,5 @@
 mod config;
+mod logging;
 
 use clap::Parser;
 use std::path::PathBuf;
@@ -28,6 +29,14 @@ fn main() {
         }
     };
 
+    let file_logger = match logging::FileLogger::new() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("Failed to initialize logging: {}", e);
+            std::process::exit(1);
+        }
+    };
+
     let characters = config.filter_characters(&args.characters);
 
     if characters.is_empty() {
@@ -39,4 +48,5 @@ fn main() {
     for ch in &characters {
         println!("  - {} (slot {})", ch.name, ch.slot);
     }
+    println!("Logs: {}", file_logger.log_dir().display());
 }
