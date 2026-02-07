@@ -1,7 +1,8 @@
 mod config;
 mod hosts;
-mod login_bin;
+mod launcher;
 mod logging;
+mod login_bin;
 mod proxy;
 mod win32;
 
@@ -48,9 +49,12 @@ fn main() {
         std::process::exit(1);
     }
 
+    println!("ffxi-login-rs v{}", env!("CARGO_PKG_VERSION"));
     println!("Launching {} character(s):", characters.len());
     for ch in &characters {
         println!("  - {} (slot {})", ch.name, ch.slot);
     }
     println!("Logs: {}", file_logger.log_dir().display());
+
+    launcher::run(&config, &characters, &file_logger);
 }
