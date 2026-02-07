@@ -13,7 +13,7 @@ use std::path::PathBuf;
 #[command(name = "login-rs", version, about = "Automated FFXI multi-character login")]
 struct Args {
     /// Path to config file
-    #[arg(short, long, default_value = "config.json")]
+    #[arg(short, long, default_value = "login-config.json")]
     config: PathBuf,
 
     /// Specific characters to log in (by name). If omitted, logs in all.

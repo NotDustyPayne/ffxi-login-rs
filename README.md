@@ -10,8 +10,9 @@ Automated multi-character FFXI login tool. Launches multiple Windower instances 
 
 ## Setup
 
-1. Copy `login-rs.exe` and `config.json` into your Windower directory (e.g., `C:\Windower4\`)
-2. Edit `config.json` — replace the placeholder character names and slots with your own
+1. Download `login-rs.exe` and `login-config.json` from the [latest release](https://github.com/NotDustyPayne/ffxi-login-rs/releases/latest)
+2. Place both files in your Windower directory (e.g., `C:\Windower4\`)
+3. Edit `login-config.json` — replace the placeholder character names and slots with your own
 4. Each character's `slot` number corresponds to their position in PlayOnline's account list
 
 A minimal config only needs your characters:
@@ -45,7 +46,7 @@ login-rs.exe
 login-rs.exe --characters CharOne CharTwo
 
 # Custom config file path
-login-rs.exe --config C:\path\to\config.json
+login-rs.exe --config C:\path\to\login-config.json
 
 # Enable debug logging
 set RUST_LOG=debug
@@ -80,7 +81,7 @@ cargo build --release
 ```
 
 3. The executable will be at `target\release\login-rs.exe`
-4. Copy `login-rs.exe` and `config.json` to your Windower directory
+4. Copy `login-rs.exe` and `login-config.json` to your Windower directory
 
 ## Development (cross-compile from macOS)
 
