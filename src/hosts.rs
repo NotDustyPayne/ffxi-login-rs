@@ -2,7 +2,7 @@ use std::fs;
 use std::io::Write;
 
 const HOSTS_PATH: &str = r"C:\Windows\System32\drivers\etc\hosts";
-const MARKER: &str = "# ffxi-login-rs";
+const MARKER: &str = "# login-rs";
 
 /// Add the hosts file entry for POL redirect
 pub fn add_entry(entry: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -17,7 +17,7 @@ pub fn add_entry(entry: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Remove all ffxi-login-rs entries from the hosts file
+/// Remove all login-rs entries from the hosts file
 pub fn remove_entries() -> Result<(), Box<dyn std::error::Error>> {
     let contents = fs::read_to_string(HOSTS_PATH)?;
     let filtered: Vec<&str> = contents

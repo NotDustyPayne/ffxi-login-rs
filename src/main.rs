@@ -49,7 +49,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    println!("ffxi-login-rs v{}", env!("CARGO_PKG_VERSION"));
+    println!("login-rs v{}", env!("CARGO_PKG_VERSION"));
     println!("Launching {} character(s):", characters.len());
     for ch in &characters {
         println!("  - {} (slot {})", ch.name, ch.slot);

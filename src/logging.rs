@@ -8,7 +8,7 @@ pub struct FileLogger {
 
 impl FileLogger {
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        let log_dir = std::env::temp_dir().join("ffxi-login-rs");
+        let log_dir = std::env::temp_dir().join("login-rs");
 
         // Clear previous logs on startup
         if log_dir.exists() {
