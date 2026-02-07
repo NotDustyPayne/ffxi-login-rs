@@ -1,5 +1,6 @@
 mod config;
 mod logging;
+mod win32;
 
 use clap::Parser;
 use std::path::PathBuf;
