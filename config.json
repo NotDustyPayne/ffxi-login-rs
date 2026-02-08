@@ -1,10 +1,8 @@
 {
+  "windower_path": "C:\\Windower4\\Windower.exe",
+  "windower_profile": "",
   "characters": [
-    { "name": "CharOne", "slot": 1 },
-    { "name": "CharTwo", "slot": 2 },
-    { "name": "CharThree", "slot": 3 },
-    { "name": "CharFour", "slot": 4 },
-    { "name": "CharFive", "slot": 5 },
-    { "name": "CharSix", "slot": 6 }
+    { "name": "MyWarrior", "slot": 1, "password": "YourPassword1" },
+    { "name": "MyPocketCorsair", "slot": 2, "password": "YourPassword2" }
   ]
 }

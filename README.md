@@ -6,16 +6,21 @@ Automated multi-character FFXI login tool. Launches multiple Windower instances 
 
 1. Download `login-rs-vX.X.X.zip` from the [latest release](https://github.com/NotDustyPayne/ffxi-login-rs/releases/latest)
 2. Extract the `login-rs` folder into your Windower directory (e.g., `C:\Windower4\login-rs\`)
-3. Open `config.json` and replace the placeholder characters with your own:
+3. Edit `config.json` with your Windower path and characters:
    ```json
    {
+     "windower_path": "C:\\Windower4\\Windower.exe",
+     "windower_profile": "",
      "characters": [
-       { "name": "MyMain", "slot": 1 },
-       { "name": "MyMule", "slot": 2 }
+       { "name": "MyWarrior", "slot": 1, "password": "YourPassword1" },
+       { "name": "MyPocketCorsair", "slot": 2, "password": "YourPassword2" }
      ]
    }
    ```
-   Each `slot` is the character's position in PlayOnline's account list (the order they appear when you open PlayOnline).
+   - `windower_path` — full path to your Windower executable
+   - `windower_profile` — Windower profile name (use `""` for the default profile)
+   - `slot` — the character's position in PlayOnline's account list (the order they appear when you open PlayOnline)
+   - `password` — your PlayOnline password for that account
 4. Right-click `login-rs.exe` and **Run as Administrator**
 
 That's it — all your characters will launch and log in automatically.
@@ -28,12 +33,13 @@ That's it — all your characters will launch and log in automatically.
 
 ## Configuration
 
-The only required field is `characters`. Everything else has sensible defaults:
+All available settings with their defaults:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `windower_path` | `C:\Windower4\Windower.exe` | Path to Windower executable |
-| `playonline_dir` | `C:\Program Files (x86)\PlayOnline\SquareEnix\PlayOnlineViewer\usr\all` | PlayOnline data directory (contains `login_w.bin`) |
+| `windower_profile` | none | Windower profile name (`""` for default) |
+| `playonline_dir` | `C:\Program Files (x86)\PlayOnline\SquareEnix\PlayOnlineViewer\usr\all` | PlayOnline data directory |
 | `stagger_delay_seconds` | `10` | Delay between each character's login in Phase 2 |
 | `launch_delay_seconds` | `2` | Delay between launching Windower instances in Phase 1 |
 | `region` | `us` | POL region (`us`, `jp`, or `eu`) |
@@ -45,7 +51,7 @@ The only required field is `characters`. Everything else has sensible defaults:
 login-rs.exe
 
 :: Log in specific characters by name
-login-rs.exe --characters MyMain MyMule
+login-rs.exe MyWarrior MyPocketCorsair
 
 :: Use a config file in a different location
 login-rs.exe --config C:\path\to\config.json
