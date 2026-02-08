@@ -1,6 +1,6 @@
 # login-rs
 
-Automated multi-character FFXI login tool. Launches multiple Windower instances and automates PlayOnline login using saved credentials, getting all your characters in-game with a single command.
+Automated multi-character FFXI login tool. Launches multiple Windower instances and automates PlayOnline login using saved credentials.
 
 ## Quickstart
 
@@ -98,3 +98,9 @@ cargo build --release --target x86_64-pc-windows-gnu
 ```
 
 Output: `target/x86_64-pc-windows-gnu/release/login-rs.exe`
+
+## Roadmap
+
+- Refine password input for PlayOnline's on-screen keyboard
+- Make initial slot position detection more robust (cursor position edge cases)
+- Skip the opening cutscene once the game instance launches
