@@ -19,10 +19,19 @@ struct Args {
     /// Specific characters to log in (by name). If omitted, logs in all.
     #[arg(long, num_args = 1..)]
     characters: Vec<String>,
+
+    /// Record mode: launch one character and record keypresses for debugging login automation
+    #[arg(long)]
+    record: bool,
 }
 
 fn main() {
     env_logger::init();
+
+    if !win32::is_elevated() {
+        println!("Not running as administrator, requesting elevation...");
+        win32::elevate_self();
+    }
 
     let args = Args::parse();
 
@@ -64,5 +73,9 @@ fn main() {
     })
     .expect("Failed to set Ctrl+C handler");
 
-    launcher::run(&config, &characters, &file_logger);
+    if args.record {
+        launcher::run_record_mode(&config, &characters, &file_logger);
+    } else {
+        launcher::run(&config, &characters, &file_logger);
+    }
 }

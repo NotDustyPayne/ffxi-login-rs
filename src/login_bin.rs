@@ -1,3 +1,7 @@
+// Unused for now — slot navigation uses cursor-reset approach instead.
+// Kept for potential future use (auto-login detection, etc.)
+#![allow(dead_code)]
+
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
