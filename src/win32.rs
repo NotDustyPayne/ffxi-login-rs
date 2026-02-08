@@ -197,6 +197,125 @@ mod platform {
         std::thread::sleep(std::time::Duration::from_millis(hold_ms));
     }
 
+    /// Type text character by character using SendInput and VkKeyScan
+    pub fn type_text(text: &str) {
+        use windows_sys::Win32::UI::Input::KeyboardAndMouse::VkKeyScanA;
+
+        for ch in text.bytes() {
+            let result = unsafe { VkKeyScanA(ch as i8) };
+            let vk = (result & 0xFF) as u16;
+            let shift_state = ((result >> 8) & 0xFF) as u16;
+
+            let needs_shift = shift_state & 1 != 0;
+            let vk_shift: u16 = 0x10;
+
+            if needs_shift {
+                // Shift down
+                let mut shift_down: [INPUT; 1] = unsafe { std::mem::zeroed() };
+                shift_down[0].r#type = INPUT_KEYBOARD;
+                shift_down[0].Anonymous.ki = KEYBDINPUT {
+                    wVk: vk_shift, wScan: 0, dwFlags: 0, time: 0, dwExtraInfo: 0,
+                };
+                unsafe { SendInput(1, shift_down.as_ptr(), std::mem::size_of::<INPUT>() as i32); }
+            }
+
+            // Key down + up
+            let mut inputs: [INPUT; 2] = unsafe { std::mem::zeroed() };
+            inputs[0].r#type = INPUT_KEYBOARD;
+            inputs[0].Anonymous.ki = KEYBDINPUT {
+                wVk: vk, wScan: 0, dwFlags: 0, time: 0, dwExtraInfo: 0,
+            };
+            inputs[1].r#type = INPUT_KEYBOARD;
+            inputs[1].Anonymous.ki = KEYBDINPUT {
+                wVk: vk, wScan: 0, dwFlags: KEYEVENTF_KEYUP, time: 0, dwExtraInfo: 0,
+            };
+            unsafe { SendInput(2, inputs.as_ptr(), std::mem::size_of::<INPUT>() as i32); }
+
+            if needs_shift {
+                // Shift up
+                let mut shift_up: [INPUT; 1] = unsafe { std::mem::zeroed() };
+                shift_up[0].r#type = INPUT_KEYBOARD;
+                shift_up[0].Anonymous.ki = KEYBDINPUT {
+                    wVk: vk_shift, wScan: 0, dwFlags: KEYEVENTF_KEYUP, time: 0, dwExtraInfo: 0,
+                };
+                unsafe { SendInput(1, shift_up.as_ptr(), std::mem::size_of::<INPUT>() as i32); }
+            }
+
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+    }
+
+    /// Paste text by setting the clipboard and pressing Ctrl+V
+    pub fn paste_text(text: &str) {
+        use windows_sys::Win32::System::DataExchange::{
+            OpenClipboard, CloseClipboard, EmptyClipboard, SetClipboardData,
+        };
+        use windows_sys::Win32::System::Memory::{
+            GlobalAlloc, GlobalLock, GlobalUnlock, GMEM_MOVEABLE,
+        };
+        use windows_sys::Win32::System::Ole::CF_UNICODETEXT;
+
+        let wide: Vec<u16> = OsStr::new(text)
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect();
+        let size = wide.len() * 2;
+
+        unsafe {
+            if OpenClipboard(std::ptr::null_mut()) == FALSE {
+                return;
+            }
+            EmptyClipboard();
+
+            let hmem = GlobalAlloc(GMEM_MOVEABLE, size);
+            if hmem.is_null() {
+                CloseClipboard();
+                return;
+            }
+
+            let ptr = GlobalLock(hmem);
+            if !ptr.is_null() {
+                std::ptr::copy_nonoverlapping(wide.as_ptr() as *const u8, ptr as *mut u8, size);
+                GlobalUnlock(hmem);
+            }
+
+            SetClipboardData(CF_UNICODETEXT as u32, hmem as _);
+            CloseClipboard();
+        }
+
+        // Press Ctrl+V
+        let vk_control: u16 = 0x11;
+        let vk_v: u16 = 0x56;
+
+        let mut inputs: [INPUT; 4] = unsafe { std::mem::zeroed() };
+
+        // Ctrl down
+        inputs[0].r#type = INPUT_KEYBOARD;
+        inputs[0].Anonymous.ki = KEYBDINPUT {
+            wVk: vk_control, wScan: 0, dwFlags: 0, time: 0, dwExtraInfo: 0,
+        };
+        // V down
+        inputs[1].r#type = INPUT_KEYBOARD;
+        inputs[1].Anonymous.ki = KEYBDINPUT {
+            wVk: vk_v, wScan: 0, dwFlags: 0, time: 0, dwExtraInfo: 0,
+        };
+        // V up
+        inputs[2].r#type = INPUT_KEYBOARD;
+        inputs[2].Anonymous.ki = KEYBDINPUT {
+            wVk: vk_v, wScan: 0, dwFlags: KEYEVENTF_KEYUP, time: 0, dwExtraInfo: 0,
+        };
+        // Ctrl up
+        inputs[3].r#type = INPUT_KEYBOARD;
+        inputs[3].Anonymous.ki = KEYBDINPUT {
+            wVk: vk_control, wScan: 0, dwFlags: KEYEVENTF_KEYUP, time: 0, dwExtraInfo: 0,
+        };
+
+        unsafe {
+            SendInput(4, inputs.as_ptr(), std::mem::size_of::<INPUT>() as i32);
+        }
+        std::thread::sleep(std::time::Duration::from_millis(300));
+    }
+
     /// Block or unblock user input (requires admin)
     pub fn block_input(block: bool) {
         use windows_sys::Win32::UI::Input::KeyboardAndMouse::BlockInput;
@@ -238,6 +357,14 @@ mod platform {
 
     pub fn press_key(_vk: u16, _hold_ms: u64) {
         log::warn!("press_key is a stub on non-Windows");
+    }
+
+    pub fn type_text(_text: &str) {
+        log::warn!("type_text is a stub on non-Windows");
+    }
+
+    pub fn paste_text(_text: &str) {
+        log::warn!("paste_text is a stub on non-Windows");
     }
 
     pub fn block_input(_block: bool) {

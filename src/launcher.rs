@@ -234,14 +234,23 @@ fn login_single(
         }
     }
 
-    // Press ENTER through login screens (credentials are pre-saved)
-    // Enter x3 — initial screens
-    for _ in 0..3 {
-        win32::press_key(0x0D, 300); // VK_RETURN
-        thread::sleep(Duration::from_millis(200));
-    }
+    // Select the slot
+    win32::press_key(0x0D, 300); // VK_RETURN
+    thread::sleep(Duration::from_millis(500));
 
-    // Enter x4 — more confirmation screens
+    // Type password character by character
+    win32::type_text(&lc.character.password);
+    thread::sleep(Duration::from_millis(300));
+
+    // Dismiss text input UI
+    win32::press_key(0x0D, 300); // VK_RETURN
+    thread::sleep(Duration::from_millis(300));
+
+    // Click Connect
+    win32::press_key(0x0D, 300); // VK_RETURN
+    thread::sleep(Duration::from_millis(500));
+
+    // Press ENTER through remaining confirmation screens
     for _ in 0..4 {
         win32::press_key(0x0D, 500); // VK_RETURN
         thread::sleep(Duration::from_millis(200));

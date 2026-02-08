@@ -45,6 +45,7 @@ pub struct Config {
 pub struct Character {
     pub name: String,
     pub slot: u8,
+    pub password: String,
 }
 
 #[derive(Debug, Deserialize)]
