@@ -27,7 +27,6 @@ That's it — all your characters will launch and log in automatically.
 
 ## Prerequisites
 
-- Windows with Windower 4 installed
 - All PlayOnline accounts saved with credentials (Windower Dev 4.6.3.6+ supports up to 20 stored accounts)
 - Run as Administrator (required for input blocking and hosts file modification)
 
