@@ -216,34 +216,34 @@ fn login_single(
 
     // Navigate to target slot: press DOWN (slot - 1) times from slot 1
     let down_presses = lc.character.slot.saturating_sub(1);
-    println!("    [debug] target_slot={}, pressing DOWN {} times", lc.character.slot, down_presses);
+    log::debug!("target_slot={}, pressing DOWN {} times", lc.character.slot, down_presses);
     for i in 0..down_presses {
-        println!("    [debug] step {}: DOWN", i + 1);
+        log::debug!("step {}: DOWN", i + 1);
         win32::press_key(0x28, 200);
     }
 
     // Step 1: Select the slot
-    println!("    [debug] step 1: ENTER to select slot");
+    log::debug!("ENTER to select slot");
     win32::press_key(0x0D, 300);
     thread::sleep(Duration::from_millis(1500));
 
     // Step 2: First confirmation screen
-    println!("    [debug] step 2: ENTER (confirmation screen 1)");
+    log::debug!("ENTER (confirmation screen 1)");
     win32::press_key(0x0D, 300);
     thread::sleep(Duration::from_millis(1500));
 
     // Step 3: Second confirmation screen
-    println!("    [debug] step 3: ENTER (confirmation screen 2)");
+    log::debug!("ENTER (confirmation screen 2)");
     win32::press_key(0x0D, 300);
     thread::sleep(Duration::from_millis(1500));
 
     // Step 4: Third confirmation screen
-    println!("    [debug] step 4: ENTER (confirmation screen 3)");
+    log::debug!("ENTER (confirmation screen 3)");
     win32::press_key(0x0D, 300);
     thread::sleep(Duration::from_millis(1500));
 
     // Step 5: Navigate to password input field (UP, RIGHT, RIGHT, ENTER)
-    println!("    [debug] step 5: UP, RIGHT, RIGHT, ENTER (navigate to password field)");
+    log::debug!("UP, RIGHT, RIGHT, ENTER (navigate to password field)");
     win32::press_key(0x26, 150);
     win32::press_key(0x27, 150);
     win32::press_key(0x27, 150);
@@ -251,17 +251,17 @@ fn login_single(
     thread::sleep(Duration::from_millis(500));
 
     // Step 6: Type password
-    println!("    [debug] step 6: typing password ({} chars)", lc.character.password.len());
+    log::debug!("typing password ({} chars)", lc.character.password.len());
     win32::type_text(&lc.character.password);
     thread::sleep(Duration::from_millis(300));
 
     // Step 7: Submit password
-    println!("    [debug] step 7: ENTER (submit password)");
+    log::debug!("ENTER (submit password)");
     win32::press_key(0x0D, 150);
     thread::sleep(Duration::from_millis(500));
 
     // Step 8: Navigate to Connect and press it
-    println!("    [debug] step 8: DOWN, ENTER (connect)");
+    log::debug!("DOWN, ENTER (connect)");
     win32::press_key(0x28, 150);
     win32::press_key(0x0D, 150);
     thread::sleep(Duration::from_millis(500));
