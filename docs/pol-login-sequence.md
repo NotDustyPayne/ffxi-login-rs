@@ -10,20 +10,21 @@ through the PlayOnline Viewer, starting from the member selection screen.
 | Step | Keys | Delay After | Description |
 |------|------|-------------|-------------|
 | 1. Slot navigation | UP/DOWN arrows | ~200ms between presses | Navigate to the correct member slot. Number of presses depends on current vs target slot. |
-| 2. Select slot | ENTER | ~2000ms | Selects the highlighted member slot. |
-| 3. Confirmation 1 | ENTER | ~1000ms | Dismiss first confirmation/info screen. |
-| 4. Confirmation 2 | ENTER | ~1000ms | Dismiss second confirmation/info screen. |
-| 5. Navigate to password field | UP, RIGHT, RIGHT, ENTER | ~500ms | From the on-screen keyboard area, navigate up to the password input row, move right twice to the input field, and press ENTER to focus it. |
-| 6. Type password | Character keys | ~50ms between chars | Type the password using standard keyboard input. Shift is held for uppercase/symbols (e.g., Shift+F for "F", Shift+1 for "!"). |
-| 7. Submit password | ENTER | ~500ms | Confirms the typed password / dismisses the text input UI. |
-| 8. Connect | DOWN, ENTER | ~500ms | Navigate down to the Connect button and press it. |
+| 2. Select slot | ENTER | ~1500ms | Selects the highlighted member slot. |
+| 3. Confirmation 1 | ENTER | ~1500ms | Dismiss first confirmation/info screen. |
+| 4. Confirmation 2 | ENTER | ~1500ms | Dismiss second confirmation/info screen. |
+| 5. Confirmation 3 | ENTER | ~1500ms | Dismiss third confirmation/info screen. |
+| 6. Navigate to password field | UP, RIGHT, RIGHT, ENTER | ~500ms | From the on-screen keyboard area, navigate up to the password input row, move right twice to the input field, and press ENTER to focus it. |
+| 7. Type password | Character keys | ~50ms between chars | Type the password using standard keyboard input. Shift is held for uppercase/symbols (e.g., Shift+F for "F", Shift+1 for "!"). |
+| 8. Submit password | ENTER | ~500ms | Confirms the typed password / dismisses the text input UI. |
+| 9. Connect | DOWN, ENTER | ~500ms | Navigate down to the Connect button and press it. |
 
 ## Notes
 
-- Steps 3 and 4 (confirmation screens) were missing from the original automation
+- Steps 3-5 (three confirmation screens) were missing from the original automation
   and are required. Without them the subsequent navigation targets the wrong UI
   elements.
-- Step 8 requires DOWN then ENTER. The original code used just ENTER, which
+- Step 9 requires DOWN then ENTER. The original code used just ENTER, which
   was not reaching the Connect button.
 - The on-screen keyboard navigation in step 5 assumes the cursor starts at the
   default position (the "0" key area). If POL changes its default focus, this

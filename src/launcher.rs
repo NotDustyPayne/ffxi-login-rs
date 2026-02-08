@@ -1,7 +1,6 @@
 use crate::config::{Character, Config};
 use crate::hosts;
 use crate::logging::FileLogger;
-use crate::login_bin;
 use crate::proxy;
 use crate::win32;
 use std::thread;
@@ -198,10 +197,6 @@ fn login_single(
     lc: &LaunchedCharacter,
     port: u16,
 ) -> Result<(), String> {
-    // Read current slot from login_w.bin
-    let login_info = login_bin::read_login_bin(&config.playonline_dir)
-        .map_err(|e| format!("Failed to read login_w.bin: {}", e))?;
-
     // Start proxy server
     let proxy_handle = proxy::start_proxy(port)
         .map_err(|e| format!("Failed to start proxy: {}", e))?;
@@ -213,25 +208,18 @@ fn login_single(
     // Block user input
     win32::block_input(true);
 
-    // Focus the POL window
+    // Move cursor outside the POL window so it doesn't hover over any slot,
+    // then focus via keyboard. This ensures the slot list defaults to slot 1.
+    win32::move_cursor_outside(lc.hwnd);
     win32::focus_window(lc.hwnd);
     thread::sleep(Duration::from_millis(500));
 
-    // Navigate to correct slot
-    let steps = login_bin::navigation_steps(login_info.current_slot, lc.character.slot);
-    println!("    [debug] current_slot={}, target_slot={}, steps={}",
-        login_info.current_slot, lc.character.slot, steps.len());
-    for (i, step) in steps.iter().enumerate() {
-        match step {
-            login_bin::NavDirection::Up => {
-                println!("    [debug] step {}: UP", i + 1);
-                win32::press_key(0x26, 200);
-            }
-            login_bin::NavDirection::Down => {
-                println!("    [debug] step {}: DOWN", i + 1);
-                win32::press_key(0x28, 200);
-            }
-        }
+    // Navigate to target slot: press DOWN (slot - 1) times from slot 1
+    let down_presses = lc.character.slot.saturating_sub(1);
+    println!("    [debug] target_slot={}, pressing DOWN {} times", lc.character.slot, down_presses);
+    for i in 0..down_presses {
+        println!("    [debug] step {}: DOWN", i + 1);
+        win32::press_key(0x28, 200);
     }
 
     // Step 1: Select the slot

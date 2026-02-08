@@ -31,7 +31,9 @@ mod platform {
         SetWindowsHookExW, UnhookWindowsHookEx, CallNextHookEx,
         GetMessageW, MSG, WH_KEYBOARD_LL, KBDLLHOOKSTRUCT,
         WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
+        GetWindowRect, SetCursorPos,
     };
+    use windows_sys::Win32::Foundation::RECT;
     use windows_sys::Win32::System::Threading::{
         CreateProcessW, PROCESS_INFORMATION, STARTUPINFOW,
         CREATE_NEW_PROCESS_GROUP,
@@ -247,6 +249,17 @@ mod platform {
             ShowWindow(hwnd, SW_RESTORE);
             BringWindowToTop(hwnd);
             SetForegroundWindow(hwnd);
+        }
+    }
+
+    /// Move the mouse cursor outside a window so it doesn't hover over any interactive elements.
+    /// Places the cursor 50px to the right of the window's right edge.
+    pub fn move_cursor_outside(hwnd: HWND) {
+        unsafe {
+            let mut rect: RECT = std::mem::zeroed();
+            if GetWindowRect(hwnd, &mut rect) != FALSE {
+                SetCursorPos(rect.right + 50, rect.top + 50);
+            }
         }
     }
 
@@ -542,6 +555,10 @@ mod platform {
 
     pub fn focus_window(_hwnd: HWND) {
         log::warn!("focus_window is a stub on non-Windows");
+    }
+
+    pub fn move_cursor_outside(_hwnd: HWND) {
+        log::warn!("move_cursor_outside is a stub on non-Windows");
     }
 
     pub fn press_key(_vk: u16, _hold_ms: u64) {
