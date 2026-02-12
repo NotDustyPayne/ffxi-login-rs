@@ -21,7 +21,8 @@ mod platform {
     use std::time::Instant;
     use windows_sys::Win32::Foundation::{BOOL, HWND, LPARAM, LRESULT, WPARAM, TRUE, FALSE};
     use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
-        SendInput, INPUT, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
+        SendInput, INPUT, INPUT_KEYBOARD, INPUT_MOUSE, KEYBDINPUT, MOUSEINPUT,
+        KEYEVENTF_KEYUP, MOUSEEVENTF_WHEEL,
         VK_RETURN,
     };
     use windows_sys::Win32::UI::WindowsAndMessaging::{
@@ -31,8 +32,9 @@ mod platform {
         SetWindowsHookExW, UnhookWindowsHookEx, CallNextHookEx,
         GetMessageW, MSG, WH_KEYBOARD_LL, KBDLLHOOKSTRUCT,
         WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
-        GetWindowRect, SetCursorPos,
+        GetWindowRect, SetCursorPos, WindowFromPoint, GetCursorPos,
     };
+    use windows_sys::Win32::Foundation::POINT;
     use windows_sys::Win32::Foundation::RECT;
     use windows_sys::Win32::System::Threading::{
         CreateProcessW, PROCESS_INFORMATION, STARTUPINFOW,
@@ -252,15 +254,34 @@ mod platform {
         }
     }
 
-    /// Move the mouse cursor outside a window so it doesn't hover over any interactive elements.
-    /// Places the cursor 50px to the right of the window's right edge.
-    pub fn move_cursor_outside(hwnd: HWND) {
+    /// Move the mouse cursor to the neutral zone of a POL window (y=80, safe range 0-160).
+    /// This positions it above the slot list in PlayOnline,
+    /// ensuring keyboard navigation starts from slot 1.
+    pub fn move_cursor_to_window(hwnd: HWND) {
         unsafe {
             let mut rect: RECT = std::mem::zeroed();
             if GetWindowRect(hwnd, &mut rect) != FALSE {
-                SetCursorPos(rect.right + 50, rect.top + 50);
+                SetCursorPos(rect.left + 50, rect.top + 80);
             }
         }
+    }
+
+    /// Simulate a single mouse wheel scroll up event
+    pub fn mouse_scroll_up() {
+        let mut input: [INPUT; 1] = unsafe { std::mem::zeroed() };
+        input[0].r#type = INPUT_MOUSE;
+        input[0].Anonymous.mi = MOUSEINPUT {
+            dx: 0,
+            dy: 0,
+            mouseData: 120, // WHEEL_DELTA (one notch up)
+            dwFlags: MOUSEEVENTF_WHEEL,
+            time: 0,
+            dwExtraInfo: 0,
+        };
+        unsafe {
+            SendInput(1, input.as_ptr(), std::mem::size_of::<INPUT>() as i32);
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
     }
 
     /// Simulate a key press (down + up) with configurable hold time
@@ -420,9 +441,15 @@ mod platform {
 
     // --- Keyboard recording ---
 
+    // Wrapper to allow HWND in a static Mutex (safe because we only
+    // read it from the hook callback on the same thread that pumps messages).
+    struct SendHwnd(HWND);
+    unsafe impl Send for SendHwnd {}
+
     struct RecorderState {
         last_time: Option<Instant>,
         index: usize,
+        target_hwnd: SendHwnd,
     }
 
     static RECORDER: Mutex<Option<RecorderState>> = Mutex::new(None);
@@ -450,12 +477,37 @@ mod platform {
                             .unwrap_or(0);
                         state.last_time = Some(now);
 
+                        // Get cursor position relative to the target POL window on key-down
+                        let mut mouse_info = String::new();
+                        if is_down {
+                            let mut pt: POINT = std::mem::zeroed();
+                            if GetCursorPos(&mut pt) != FALSE {
+                                let mut win_rect: RECT = std::mem::zeroed();
+                                if !state.target_hwnd.0.is_null()
+                                    && GetWindowRect(state.target_hwnd.0, &mut win_rect) != FALSE
+                                {
+                                    let offset_x = pt.x - win_rect.left;
+                                    let offset_y = pt.y - win_rect.top;
+                                    mouse_info = format!(
+                                        "  | screen=({},{}) pol_offset=({},{})",
+                                        pt.x, pt.y, offset_x, offset_y
+                                    );
+                                } else {
+                                    mouse_info = format!(
+                                        "  | screen=({},{})",
+                                        pt.x, pt.y
+                                    );
+                                }
+                            }
+                        }
+
                         println!(
-                            "{:<6} {:<20} {:<6} +{}ms",
+                            "{:<6} {:<20} {:<6} +{}ms{}",
                             state.index,
                             super::vk_name(vk),
                             direction,
                             delay_ms,
+                            mouse_info,
                         );
 
                         state.index += 1;
@@ -467,13 +519,15 @@ mod platform {
     }
 
     /// Stream keyboard events to stdout using a low-level hook. Runs until the process exits (Ctrl+C).
-    pub fn record_keys_stream() {
+    /// `target_hwnd` is the POL window — all mouse positions are logged relative to it.
+    pub fn record_keys_stream(target_hwnd: HWND) {
         // Initialize recorder state
         {
             let mut guard = RECORDER.lock().unwrap();
             *guard = Some(RecorderState {
                 last_time: None,
                 index: 0,
+                target_hwnd: SendHwnd(target_hwnd),
             });
         }
 
@@ -557,8 +611,12 @@ mod platform {
         log::warn!("focus_window is a stub on non-Windows");
     }
 
-    pub fn move_cursor_outside(_hwnd: HWND) {
-        log::warn!("move_cursor_outside is a stub on non-Windows");
+    pub fn move_cursor_to_window(_hwnd: HWND) {
+        log::warn!("move_cursor_to_window is a stub on non-Windows");
+    }
+
+    pub fn mouse_scroll_up() {
+        log::warn!("mouse_scroll_up is a stub on non-Windows");
     }
 
     pub fn press_key(_vk: u16, _hold_ms: u64) {
@@ -577,7 +635,7 @@ mod platform {
         log::warn!("block_input is a stub on non-Windows");
     }
 
-    pub fn record_keys_stream() {
+    pub fn record_keys_stream(_target_hwnd: HWND) {
         log::warn!("record_keys_stream is a stub on non-Windows");
     }
 

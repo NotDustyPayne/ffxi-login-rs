@@ -208,22 +208,30 @@ fn login_single(
     // Block user input
     win32::block_input(true);
 
-    // Move cursor outside the POL window so it doesn't hover over any slot,
-    // then focus via keyboard. This ensures the slot list defaults to slot 1.
-    win32::move_cursor_outside(lc.hwnd);
+    // Focus the POL window, position cursor in neutral zone, then scroll
+    // up to guarantee slot 1 is selected before navigating down.
+    println!("    {}: targeting slot {}", lc.character.name, lc.character.slot);
     win32::focus_window(lc.hwnd);
+    win32::move_cursor_to_window(lc.hwnd);
     thread::sleep(Duration::from_millis(500));
 
-    // Navigate to target slot: press DOWN (slot - 1) times from slot 1
-    let down_presses = lc.character.slot.saturating_sub(1);
-    log::debug!("target_slot={}, pressing DOWN {} times", lc.character.slot, down_presses);
+    // Scroll mouse wheel up to reset to slot 1
+    println!("    Resetting slot position with mouse wheel up");
+    for _ in 0..20 {
+        win32::mouse_scroll_up();
+    }
+    thread::sleep(Duration::from_millis(300));
+
+    // Navigate to target slot: press DOWN `slot` times (first DOWN activates slot 1)
+    let down_presses = lc.character.slot;
+    println!("    Moving down {} time(s) to reach slot {}", down_presses, lc.character.slot);
     for i in 0..down_presses {
-        log::debug!("step {}: DOWN", i + 1);
+        println!("    DOWN press {}/{}", i + 1, down_presses);
         win32::press_key(0x28, 200);
     }
 
-    // Step 1: Select the slot
-    log::debug!("ENTER to select slot");
+    // Select the slot
+    println!("    ENTER to select slot");
     win32::press_key(0x0D, 300);
     thread::sleep(Duration::from_millis(1500));
 
@@ -300,10 +308,11 @@ pub fn run_record_mode(config: &Config, characters: &[&Character], logger: &File
             println!("Manually perform the login in PlayOnline.");
             println!();
             println!("{:<6} {:<20} {:<6} Delay", "#", "Key", "Dir");
-            println!("{}", "-".repeat(50));
+            println!("{}", "-".repeat(80));
 
             // Streams events to stdout until Ctrl+C
-            win32::record_keys_stream();
+            // Mouse positions are logged relative to the POL window
+            win32::record_keys_stream(lc.hwnd);
         }
         Err(e) => {
             logger.log_error(&character.name, "record_launch", &e);
